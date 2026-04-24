@@ -585,7 +585,7 @@ select{cursor:pointer}
 // SUPABASE CONFIG
 // ============================================================
 const SUPA_URL = 'https://iwotqykkdlsivmikuzey.supabase.co';
-const SUPA_KEY = 'sb_publishable_pPycV7oMC4kAlTLMGYY3CQ_niWQG0XN';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3b3RxeWtrZGxzaXZtaWt1emV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4ODkzNDcsImV4cCI6MjA5MjQ2NTM0N30.fGoHznUiA1cZiwGo4GeHU4JLIJUlsZxIc57tPHl5ORQ';
 
 async function supa(path, opts={}) {
   const res = await fetch(SUPA_URL+'/rest/v1/'+path, {
