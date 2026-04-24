@@ -196,6 +196,7 @@ select{cursor:pointer}
 /* OVERLAY close zone */
 .overlay-bg{position:fixed;inset:0}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="app" id="app">
@@ -587,21 +588,11 @@ select{cursor:pointer}
 const SUPA_URL = 'https://iwotqykkdlsivmikuzey.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3b3RxeWtrZGxzaXZtaWt1emV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4ODkzNDcsImV4cCI6MjA5MjQ2NTM0N30.fGoHznUiA1cZiwGo4GeHU4JLIJUlsZxIc57tPHl5ORQ';
 
-async function supa(path, opts={}) {
-  const res = await fetch(SUPA_URL+'/rest/v1/'+path, {
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer '+SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': opts.prefer||'return=representation',
-      ...opts.headers
-    },
-    method: opts.method||'GET',
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-  });
-  if (!res.ok) { const err = await res.text(); throw new Error(err); }
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+// Use supabase-js client
+let _sb = null;
+function getSB() {
+  if (!_sb) _sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  return _sb;
 }
 
 // ============================================================
@@ -639,14 +630,18 @@ function mapTratamento(r) {
 async function loadDB() {
   showLoading();
   try {
-    const [clientes, servicos, tratamentos] = await Promise.all([
-      supa('clientes?order=nome.asc'),
-      supa('servicos?order=data.desc,hora.asc'),
-      supa('tratamentos?order=nome.asc'),
+    const db = getSB();
+    const [r1, r2, r3] = await Promise.all([
+      db.from('clientes').select('*').order('nome'),
+      db.from('servicos').select('*').order('data', {ascending:false}),
+      db.from('tratamentos').select('*').order('nome'),
     ]);
-    _clientes = (clientes||[]).map(mapCliente);
-    _servicos = (servicos||[]).map(mapServico);
-    _tratamentos = (tratamentos||[]).map(mapTratamento);
+    if (r1.error) throw r1.error;
+    if (r2.error) throw r2.error;
+    if (r3.error) throw r3.error;
+    _clientes = (r1.data||[]).map(mapCliente);
+    _servicos = (r2.data||[]).map(mapServico);
+    _tratamentos = (r3.data||[]).map(mapTratamento);
   } catch(e) {
     toast('Erro ao ligar à base de dados: '+e.message);
   }
@@ -742,13 +737,16 @@ async function salvarCliente() {
   };
   showLoading();
   try {
+    const db = getSB();
     if (id) {
-      const res = await supa('clientes?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const {data, error} = await db.from('clientes').update(obj).eq('id',id).select();
+      if (error) throw error;
       const i = _clientes.findIndex(x=>x.id===id);
-      if (i>=0) _clientes[i] = mapCliente(res[0]);
+      if (i>=0) _clientes[i] = mapCliente(data[0]);
     } else {
-      const res = await supa('clientes', {method:'POST', body:obj, prefer:'return=representation'});
-      _clientes.push(mapCliente(res[0]));
+      const {data, error} = await db.from('clientes').insert(obj).select();
+      if (error) throw error;
+      _clientes.push(mapCliente(data[0]));
     }
     closeModal('modalCliente');
     toast(id ? 'Cliente atualizada!' : 'Cliente registada!', 'success');
@@ -925,13 +923,16 @@ async function salvarServico() {
   };
   showLoading();
   try {
+    const db = getSB();
     if (id) {
-      const res = await supa('servicos?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const {data, error} = await db.from('servicos').update(obj).eq('id',id).select();
+      if (error) throw error;
       const i = _servicos.findIndex(x=>x.id===id);
-      if (i>=0) _servicos[i] = mapServico(res[0]);
+      if (i>=0) _servicos[i] = mapServico(data[0]);
     } else {
-      const res = await supa('servicos', {method:'POST', body:obj, prefer:'return=representation'});
-      _servicos.unshift(mapServico(res[0]));
+      const {data, error} = await db.from('servicos').insert(obj).select();
+      if (error) throw error;
+      _servicos.unshift(mapServico(data[0]));
     }
     closeModal('modalServico');
     toast(id?'Serviço atualizado!':'Serviço registado!','success');
@@ -971,13 +972,16 @@ async function salvarTratamento() {
   };
   showLoading();
   try {
+    const db = getSB();
     if (id) {
-      const res = await supa('tratamentos?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const {data, error} = await db.from('tratamentos').update(obj).eq('id',id).select();
+      if (error) throw error;
       const i = _tratamentos.findIndex(x=>x.id===id);
-      if (i>=0) _tratamentos[i] = mapTratamento(res[0]);
+      if (i>=0) _tratamentos[i] = mapTratamento(data[0]);
     } else {
-      const res = await supa('tratamentos', {method:'POST', body:obj, prefer:'return=representation'});
-      _tratamentos.push(mapTratamento(res[0]));
+      const {data, error} = await db.from('tratamentos').insert(obj).select();
+      if (error) throw error;
+      _tratamentos.push(mapTratamento(data[0]));
     }
     closeModal('modalTratamento');
     toast('Tratamento guardado!','success');
