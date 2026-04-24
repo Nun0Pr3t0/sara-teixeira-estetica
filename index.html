@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sara Teixeira — Gestão de Clínica de Estética</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --rose:#c8877a;--rose-light:#f0d5d0;--rose-dark:#9e5a4f;
+  --cream:#fdf6f0;--warm:#f5ede4;--brown:#5c3d2e;--brown-light:#8a6550;
+  --text:#2d1f1a;--text-muted:#8a7570;--white:#fff;
+  --border:#e8d5cc;--success:#7a9e7e;--warn:#c8a87a;--danger:#c87a7a;
+  --shadow:0 2px 16px rgba(92,61,46,.10);
+  --shadow-lg:0 8px 40px rgba(92,61,46,.16);
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif}
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--brown);color:var(--cream);display:flex;flex-direction:column;padding:0;flex-shrink:0;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:.3s}
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.content{padding:28px;flex:1}
+
+/* SIDEBAR */
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(253,246,240,.12)}
+.sidebar-logo .brand{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--rose-light);letter-spacing:.5px}
+.sidebar-logo .sub{font-size:11px;color:rgba(253,246,240,.5);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav{padding:16px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:12px;padding:13px 24px;cursor:pointer;color:rgba(253,246,240,.7);font-size:14px;font-weight:400;transition:.2s;border-left:3px solid transparent;user-select:none}
+.nav-item:hover{background:rgba(253,246,240,.07);color:var(--rose-light)}
+.nav-item.active{background:rgba(200,135,122,.18);color:var(--rose-light);border-left-color:var(--rose);font-weight:500}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(253,246,240,.12);font-size:12px;color:rgba(253,246,240,.35)}
+
+/* TOPBAR */
+.page-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--brown)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:.18s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--rose);color:#fff}
+.btn-primary:hover{background:var(--rose-dark)}
+.btn-secondary{background:transparent;border:1.5px solid var(--border);color:var(--brown)}
+.btn-secondary:hover{border-color:var(--rose);color:var(--rose)}
+.btn-ghost{background:transparent;color:var(--text-muted);padding:8px 12px}
+.btn-ghost:hover{color:var(--rose)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{opacity:.85}
+.btn-sm{padding:6px 13px;font-size:12.5px}
+.btn svg{width:15px;height:15px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:22px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--brown)}
+
+/* DASHBOARD */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px;display:flex;align-items:flex-start;gap:16px}
+.stat-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-icon.rose{background:var(--rose-light)}
+.stat-icon.green{background:#d4ecd6}
+.stat-icon.gold{background:#f5e6cc}
+.stat-icon.blue{background:#cce0f0}
+.stat-icon svg{width:22px;height:22px}
+.stat-icon.rose svg{color:var(--rose-dark)}
+.stat-icon.green svg{color:#4a7e50}
+.stat-icon.gold svg{color:#9e6e2e}
+.stat-icon.blue svg{color:#2e6e9e}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--brown);line-height:1}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;padding:10px 14px;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);border-bottom:2px solid var(--border);background:var(--warm)}
+td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--cream)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:500}
+.badge-rose{background:var(--rose-light);color:var(--rose-dark)}
+.badge-green{background:#d4ecd6;color:#2e6e35}
+.badge-gold{background:#f5e6cc;color:#7a5020}
+.badge-blue{background:#cce0f0;color:#1e4e7a}
+.badge-gray{background:#eee;color:#666}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(45,31,26,.45);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.22s;backdrop-filter:blur(2px)}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:var(--radius);width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(18px);transition:.22s}
+.overlay.open .modal{transform:none}
+.modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--brown)}
+.modal-body{padding:22px 26px}
+.modal-footer{padding:16px 26px 22px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border)}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--brown-light);margin-bottom:5px;letter-spacing:.3px}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);transition:.18s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--rose);background:#fff}
+textarea{resize:vertical;min-height:80px}
+select{cursor:pointer}
+
+/* SEARCH */
+.search-wrap{position:relative}
+.search-wrap input{padding-left:38px;background:var(--warm);border-color:transparent}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted)}
+
+/* AVATAR */
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;font-family:'DM Sans',sans-serif}
+
+/* CLIENT DETAIL */
+.client-hero{background:linear-gradient(135deg,var(--brown) 0%,var(--rose-dark) 100%);border-radius:var(--radius);padding:28px;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:22px}
+.client-hero .big-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;font-family:'Cormorant Garamond',serif;border:2px solid rgba(255,255,255,.3)}
+.client-hero h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600}
+.client-hero p{font-size:13px;opacity:.7;margin-top:3px}
+.client-meta{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.client-meta span{font-size:12.5px;opacity:.8;display:flex;align-items:center;gap:5px}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border);position:relative}
+.timeline-item:last-child{border-bottom:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--rose);margin-top:5px;flex-shrink:0;position:relative}
+.tl-dot::before{content:'';position:absolute;left:4px;top:10px;bottom:-26px;width:2px;background:var(--border)}
+.timeline-item:last-child .tl-dot::before{display:none}
+.tl-content{flex:1}
+.tl-title{font-weight:500;font-size:14px;color:var(--brown)}
+.tl-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.tl-obs{font-size:13px;color:var(--text);margin-top:6px;background:var(--warm);border-radius:6px;padding:8px 12px;border-left:3px solid var(--rose)}
+
+/* AGENDA */
+.agenda-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
+.day-header{text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:4px}
+.day-cell{min-height:80px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);padding:6px;font-size:11px;cursor:pointer;transition:.15s}
+.day-cell:hover{border-color:var(--rose);background:var(--warm)}
+.day-cell.today{border-color:var(--rose);background:var(--rose-light)}
+.day-num{font-weight:600;color:var(--brown);font-size:13px;margin-bottom:4px}
+.day-cell.today .day-num{color:var(--rose-dark)}
+.appt-pill{background:var(--rose);color:#fff;border-radius:4px;padding:2px 5px;margin-bottom:2px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-pill.green{background:var(--success)}
+.appt-pill.gold{background:var(--warn)}
+
+/* TRATAMENTOS LIST */
+.treat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.treat-card{background:var(--warm);border-radius:10px;padding:16px;border:1.5px solid var(--border);cursor:pointer;transition:.15s;text-align:center}
+.treat-card:hover{border-color:var(--rose);background:var(--rose-light)}
+.treat-card.selected{border-color:var(--rose);background:var(--rose-light)}
+.treat-icon{font-size:26px;margin-bottom:8px}
+.treat-name{font-size:13px;font-weight:500;color:var(--brown)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--brown);color:#fff;padding:13px 20px;border-radius:10px;font-size:14px;z-index:999;transform:translateY(80px);opacity:0;transition:.3s;display:flex;align-items:center;gap:10px;max-width:340px}
+.toast.show{transform:none;opacity:1}
+.toast.success{background:var(--success)}
+.toast svg{width:16px;height:16px;flex-shrink:0}
+
+/* MOBILE */
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;color:var(--brown)}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+  .treat-grid{grid-template-columns:repeat(2,1fr)}
+  .agenda-grid{grid-template-columns:repeat(7,1fr)}
+  .day-cell{min-height:50px}
+  .content{padding:16px}
+  .topbar{padding:12px 16px}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .modal{width:100vw;max-height:100vh;border-radius:0}
+}
+
+/* SECTION TOGGLES */
+.section{display:none}
+.section.active{display:block}
+
+/* TAG */
+.tag{display:inline-flex;align-items:center;gap:5px;background:var(--rose-light);color:var(--rose-dark);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:500;margin:2px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 24px;color:var(--text-muted)}
+.empty svg{width:48px;height:48px;opacity:.3;margin:0 auto 12px}
+.empty p{font-size:14px}
+.empty .sub{font-size:12.5px;margin-top:4px;opacity:.7}
+
+/* OVERLAY close zone */
+.overlay-bg{position:fixed;inset:0}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">✦ Sara Teixeira</div>
+    <div class="sub">Clínica de Estética</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" data-section="dashboard" onclick="navigate(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-section="clientes" onclick="navigate(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clientes
+    </div>
+    <div class="nav-item" data-section="agenda" onclick="navigate(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agenda
+    </div>
+    <div class="nav-item" data-section="tratamentos" onclick="navigate(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Tratamentos
+    </div>
+    <div class="nav-item" data-section="historico" onclick="navigate(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 7 7 7"/></svg>
+      Histórico
+    </div>
+  </nav>
+  <div class="sidebar-footer">v1.0 · Sara Teixeira Estética</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="page-title" id="pageTitle">Dashboard</span>
+    </div>
+    <div class="topbar-actions" id="topbarActions"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="section-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon rose">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-clientes">0</div>
+            <div class="stat-label">Clientes Registadas</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-hoje">0</div>
+            <div class="stat-label">Marcações Hoje</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-servicos">0</div>
+            <div class="stat-label">Serviços Este Mês</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total de Serviços</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Próximas Marcações</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate(document.querySelector('[data-section=agenda]'))">Ver agenda →</button>
+          </div>
+          <div id="dash-proximas"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Últimos Serviços</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate(document.querySelector('[data-section=historico]'))">Ver todos →</button>
+          </div>
+          <div id="dash-ultimos"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="section" id="section-clientes">
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div class="search-wrap" style="flex:1;min-width:200px">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="clienteSearch" placeholder="Pesquisar cliente..." oninput="renderClientesList()"/>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Telemóvel</th>
+                <th>Último serviço</th>
+                <th>Total visitas</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="clientesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="section" id="section-agenda">
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">‹</button>
+            <span class="serif" style="font-size:18px;font-weight:600;color:var(--brown)" id="calMonthLabel"></span>
+            <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">›</button>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="goToday()">Hoje</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="agenda-grid" id="calDays"></div>
+        <div id="calDayCells"></div>
+      </div>
+      <div class="card" style="margin-top:18px" id="agendaListCard">
+        <div class="card-header">
+          <span class="card-title" id="agendaListTitle">Marcações do mês</span>
+        </div>
+        <div id="agendaList"></div>
+      </div>
+    </div>
+
+    <!-- TRATAMENTOS CONFIG -->
+    <div class="section" id="section-tratamentos">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Tipos de Tratamentos</span>
+          <button class="btn btn-primary btn-sm" onclick="openTratamentoModal()">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo Tratamento
+          </button>
+        </div>
+        <div class="treat-grid" id="tratamentosGrid"></div>
+      </div>
+    </div>
+
+    <!-- HISTORICO -->
+    <div class="section" id="section-historico">
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div class="search-wrap" style="flex:1;min-width:200px">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="histSearch" placeholder="Pesquisar..." oninput="renderHistorico()"/>
+          </div>
+          <select id="histTrat" onchange="renderHistorico()" style="width:auto;min-width:160px">
+            <option value="">Todos os tratamentos</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Tratamento</th>
+                <th>Observações</th>
+                <th>Feito por</th>
+              </tr>
+            </thead>
+            <tbody id="historicoBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETALHE CLIENTE (oculto por section, mostrado dinamicamente) -->
+    <div class="section" id="section-cliente-detalhe">
+      <div id="clienteDetalheContent"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- MODAIS -->
+
+<!-- Modal Cliente -->
+<div class="overlay" id="modalCliente">
+  <div class="overlay-bg" onclick="closeModal('modalCliente')"></div>
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalClienteTitulo">Nova Cliente</span>
+      <button class="btn btn-ghost" onclick="closeModal('modalCliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="clienteId"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome *</label>
+          <input id="cNome" type="text" placeholder="Nome completo"/>
+        </div>
+        <div class="form-group">
+          <label>Telemóvel *</label>
+          <input id="cTelemovel" type="tel" placeholder="9XX XXX XXX"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="cEmail" type="email" placeholder="email@exemplo.pt"/>
+        </div>
+        <div class="form-group">
+          <label>Data de Nascimento</label>
+          <input id="cNascimento" type="date"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Alergias / Condições de Saúde</label>
+        <textarea id="cAlergias" placeholder="Ex: alergia a látex, pele sensível..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Observações Gerais</label>
+        <textarea id="cObs" placeholder="Notas gerais sobre a cliente..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalCliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarCliente()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Serviço -->
+<div class="overlay" id="modalServico">
+  <div class="overlay-bg" onclick="closeModal('modalServico')"></div>
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Registar Serviço / Marcação</span>
+      <button class="btn btn-ghost" onclick="closeModal('modalServico')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="servicoId"/>
+      <input type="hidden" id="servicoClienteId"/>
+      <div class="form-group">
+        <label>Cliente *</label>
+        <select id="sCliente" onchange="onClienteServicoChange()">
+          <option value="">Selecionar cliente...</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data *</label>
+          <input id="sData" type="date"/>
+        </div>
+        <div class="form-group">
+          <label>Hora</label>
+          <input id="sHora" type="time" value="10:00"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tratamento *</label>
+        <select id="sTratamento">
+          <option value="">Selecionar...</option>
+        </select>
+      </div>
+      <div class="form-group" id="sZonaGroup" style="display:none">
+        <label>Zona de Depilação</label>
+        <select id="sZona">
+          <option value="">Selecionar zona...</option>
+          <option>Axilas</option>
+          <option>Buço</option>
+          <option>Queixo</option>
+          <option>Virilhas completas</option>
+          <option>Virilhas simples</option>
+          <option>Pernas completas</option>
+          <option>Pernas parciais</option>
+          <option>Braços</option>
+          <option>Costas</option>
+          <option>Abdómen</option>
+          <option>Rosto completo</option>
+          <option>Sobrancelhas (depilação)</option>
+          <option>Corpo completo</option>
+          <option>Outra</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="sObs" placeholder="Notas sobre o serviço, produto usado, reação da pele..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Preço (€)</label>
+          <input id="sPreco" type="number" min="0" step="0.50" placeholder="0.00"/>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select id="sEstado">
+            <option value="marcado">Marcado</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Operadora</label>
+        <input id="sOperadora" type="text" placeholder="Nome da funcionária..."/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalServico')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarServico()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tratamento Config -->
+<div class="overlay" id="modalTratamento">
+  <div class="overlay-bg" onclick="closeModal('modalTratamento')"></div>
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <span class="modal-title">Tipo de Tratamento</span>
+      <button class="btn btn-ghost" onclick="closeModal('modalTratamento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tratId"/>
+      <div class="form-group">
+        <label>Nome do Tratamento *</label>
+        <input id="tratNome" type="text" placeholder="Ex: Depilação, Massagem..."/>
+      </div>
+      <div class="form-group">
+        <label>Emoji / Ícone</label>
+        <input id="tratEmoji" type="text" placeholder="Ex: 🌿" maxlength="2"/>
+      </div>
+      <div class="form-group">
+        <label>Tem zonas? (para depilação)</label>
+        <select id="tratTemZonas">
+          <option value="false">Não</option>
+          <option value="true">Sim — mostrar seleção de zona</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalTratamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarTratamento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG
+// ============================================================
+const SUPA_URL = 'https://iwotqykkdlsivmikuzey.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3b3RxeWtrZGxzaXZtaWt1emV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4ODkzNDcsImV4cCI6MjA5MjQ2NTM0N30.fGoHznUiA1cZiwGo4GeHU4JLIJUlsZxIc57tPHl5ORQ';
+
+async function supa(path, opts={}) {
+  const res = await fetch(SUPA_URL+'/rest/v1/'+path, {
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer||'return=representation',
+      ...opts.headers
+    },
+    method: opts.method||'GET',
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  if (!res.ok) { const err = await res.text(); throw new Error(err); }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// ============================================================
+// DATA STORE (Supabase)
+// ============================================================
+let _clientes = [];
+let _servicos = [];
+let _tratamentos = [];
+
+function getClientes() { return _clientes; }
+function getServicos() { return _servicos; }
+function getTratamentos() { return _tratamentos; }
+
+function showLoading() {
+  let el = document.getElementById('loadingBar');
+  if (!el) { el=document.createElement('div'); el.id='loadingBar';
+    el.style.cssText='position:fixed;top:0;left:0;right:0;height:3px;background:var(--rose);z-index:9999;transition:.3s;opacity:1';
+    document.body.appendChild(el); } else { el.style.opacity='1'; }
+}
+function hideLoading() { const el=document.getElementById('loadingBar'); if(el) el.style.opacity='0'; }
+
+function mapCliente(r) {
+  return { id:r.id, nome:r.nome, telemovel:r.telemovel, email:r.email,
+    nascimento:r.nascimento, alergias:r.alergias, obs:r.obs, criadoEm:r.criado_em };
+}
+function mapServico(r) {
+  return { id:r.id, clienteId:r.cliente_id, tratamentoId:r.tratamento_id,
+    data:r.data, hora:r.hora?r.hora.slice(0,5):null, zona:r.zona, obs:r.obs,
+    preco:r.preco, estado:r.estado, operadora:r.operadora, criadoEm:r.criado_em };
+}
+function mapTratamento(r) {
+  return { id:r.id, nome:r.nome, emoji:r.emoji, temZonas:r.tem_zonas, criadoEm:r.criado_em };
+}
+
+async function loadDB() {
+  showLoading();
+  try {
+    const [clientes, servicos, tratamentos] = await Promise.all([
+      supa('clientes?order=nome.asc'),
+      supa('servicos?order=data.desc,hora.asc'),
+      supa('tratamentos?order=nome.asc'),
+    ]);
+    _clientes = (clientes||[]).map(mapCliente);
+    _servicos = (servicos||[]).map(mapServico);
+    _tratamentos = (tratamentos||[]).map(mapTratamento);
+  } catch(e) {
+    toast('Erro ao ligar à base de dados: '+e.message);
+  }
+  hideLoading();
+}
+
+function uid() { return crypto.randomUUID(); }
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentSection = 'dashboard';
+const titles = {dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',tratamentos:'Tratamentos',historico:'Histórico','cliente-detalhe':'Ficha de Cliente'};
+const topbarBtns = {
+  clientes: `<button class="btn btn-primary btn-sm" onclick="openClienteModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Cliente</button>`,
+  agenda: `<button class="btn btn-primary btn-sm" onclick="openServicoModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Marcação</button>`,
+  historico: `<button class="btn btn-primary btn-sm" onclick="openServicoModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registar Serviço</button>`,
+  'cliente-detalhe': `<button class="btn btn-primary btn-sm" onclick="openServicoModal(currentClienteId)"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Serviço</button>`,
+};
+
+function navigate(el, section) {
+  section = section || (el && el.dataset.section);
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl = document.querySelector('[data-section="'+section+'"]');
+  if (navEl) navEl.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+section).classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[section]||section;
+  document.getElementById('topbarActions').innerHTML = topbarBtns[section]||'';
+  currentSection = section;
+  if (section==='dashboard') renderDashboard();
+  if (section==='clientes') renderClientesList();
+  if (section==='agenda') renderAgenda();
+  if (section==='tratamentos') renderTratamentos();
+  if (section==='historico') renderHistorico();
+  // close sidebar on mobile
+  if (window.innerWidth<=768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.className = 'toast '+(type==='success'?'success':'');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ============================================================
+// CLIENTES
+// ============================================================
+function openClienteModal(id) {
+  document.getElementById('clienteId').value = id||'';
+  if (id) {
+    const c = getClientes().find(x=>x.id===id);
+    document.getElementById('modalClienteTitulo').textContent = 'Editar Cliente';
+    document.getElementById('cNome').value = c.nome||'';
+    document.getElementById('cTelemovel').value = c.telemovel||'';
+    document.getElementById('cEmail').value = c.email||'';
+    document.getElementById('cNascimento').value = c.nascimento||'';
+    document.getElementById('cAlergias').value = c.alergias||'';
+    document.getElementById('cObs').value = c.obs||'';
+  } else {
+    document.getElementById('modalClienteTitulo').textContent = 'Nova Cliente';
+    ['cNome','cTelemovel','cEmail','cNascimento','cAlergias','cObs'].forEach(f=>document.getElementById(f).value='');
+  }
+  openModal('modalCliente');
+}
+
+async function salvarCliente() {
+  const nome = document.getElementById('cNome').value.trim();
+  if (!nome) { toast('Nome obrigatório'); return; }
+  const id = document.getElementById('clienteId').value;
+  const obj = {
+    nome,
+    telemovel: document.getElementById('cTelemovel').value.trim()||null,
+    email: document.getElementById('cEmail').value.trim()||null,
+    nascimento: document.getElementById('cNascimento').value||null,
+    alergias: document.getElementById('cAlergias').value.trim()||null,
+    obs: document.getElementById('cObs').value.trim()||null,
+  };
+  showLoading();
+  try {
+    if (id) {
+      const res = await supa('clientes?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const i = _clientes.findIndex(x=>x.id===id);
+      if (i>=0) _clientes[i] = mapCliente(res[0]);
+    } else {
+      const res = await supa('clientes', {method:'POST', body:obj, prefer:'return=representation'});
+      _clientes.push(mapCliente(res[0]));
+    }
+    closeModal('modalCliente');
+    toast(id ? 'Cliente atualizada!' : 'Cliente registada!', 'success');
+    renderClientesList();
+    renderDashboard();
+  } catch(e) { toast('Erro: '+e.message); }
+  hideLoading();
+}
+
+function renderClientesList() {
+  const q = (document.getElementById('clienteSearch')||{value:''}).value.toLowerCase();
+  const clientes = getClientes().filter(c=>!q||c.nome.toLowerCase().includes(q)||(c.telemovel||'').includes(q));
+  const servicos = getServicos();
+  const body = document.getElementById('clientesTableBody');
+  if (!body) return;
+  if (!clientes.length) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty"><p>Nenhuma cliente encontrada.</p><div class="sub">Clica em "Nova Cliente" para começar.</div></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = clientes.sort((a,b)=>a.nome.localeCompare(b.nome)).map(c=>{
+    const svcs = servicos.filter(s=>s.clienteId===c.id&&s.estado==='concluido');
+    const ultimo = svcs.sort((a,b)=>b.data.localeCompare(a.data))[0];
+    const initials = c.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+    return `<tr onclick="abrirCliente('${c.id}')" style="cursor:pointer">
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${initials}</div><span style="font-weight:500">${c.nome}</span></div></td>
+      <td>${c.telemovel||'—'}</td>
+      <td>${ultimo ? formatDate(ultimo.data) : '—'}</td>
+      <td><span class="badge badge-rose">${svcs.length} visita${svcs.length!==1?'s':''}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openClienteModal('${c.id}')">✎ Editar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+let currentClienteId = null;
+function abrirCliente(id) {
+  currentClienteId = id;
+  const c = getClientes().find(x=>x.id===id);
+  if (!c) return;
+  const servicos = getServicos().filter(s=>s.clienteId===id).sort((a,b)=>b.data.localeCompare(a.data));
+  const tratamentos = getTratamentos();
+  const initials = c.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  const idade = c.nascimento ? Math.floor((Date.now()-new Date(c.nascimento))/(365.25*24*3600*1000)) : null;
+  let html = `<div class="client-hero">
+    <div class="big-avatar">${initials}</div>
+    <div>
+      <h2>${c.nome}</h2>
+      <p>${c.email||''}</p>
+      <div class="client-meta">
+        ${c.telemovel?`<span>📞 ${c.telemovel}</span>`:''}
+        ${idade?`<span>🎂 ${idade} anos</span>`:''}
+        <span>✦ ${servicos.filter(s=>s.estado==='concluido').length} serviços</span>
+      </div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+      <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="openClienteModal('${id}')">✎ Editar</button>
+      <button class="btn btn-primary btn-sm" onclick="openServicoModal('${id}')">+ Serviço</button>
+    </div>
+  </div>`;
+  if (c.alergias) html += `<div class="card" style="margin-bottom:16px;border-left:3px solid var(--warn)"><strong>⚠ Alergias / Saúde:</strong> ${c.alergias}</div>`;
+  if (c.obs) html += `<div class="card" style="margin-bottom:16px"><strong>📝 Notas:</strong> ${c.obs}</div>`;
+  html += `<div class="card"><div class="card-header"><span class="card-title">Histórico de Serviços</span></div>`;
+  if (!servicos.length) {
+    html += `<div class="empty"><p>Sem serviços registados ainda.</p></div>`;
+  } else {
+    html += `<div class="timeline">`;
+    html += servicos.map(s=>{
+      const trat = tratamentos.find(t=>t.id===s.tratamentoId)||{nome:'Serviço',emoji:'⭐'};
+      const estadoBadge = s.estado==='concluido'?'badge-green':s.estado==='cancelado'?'badge-gray':'badge-gold';
+      return `<div class="timeline-item">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="tl-title">${trat.emoji} ${trat.nome}${s.zona?' — '+s.zona:''}</span>
+            <span class="badge ${estadoBadge}">${s.estado}</span>
+            ${s.preco?`<span class="badge badge-blue">${parseFloat(s.preco).toFixed(2)} €</span>`:''}
+          </div>
+          <div class="tl-meta">${formatDate(s.data)}${s.hora?' às '+s.hora:''}${s.operadora?' · '+s.operadora:''}</div>
+          ${s.obs?`<div class="tl-obs">${s.obs}</div>`:''}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="editarServico('${s.id}')" title="Editar">✎</button>
+      </div>`;
+    }).join('');
+    html += `</div>`;
+  }
+  html += `</div>`;
+  html += `<div style="margin-top:12px"><button class="btn btn-secondary" onclick="navigate(null,'clientes')">← Voltar à lista</button></div>`;
+  document.getElementById('clienteDetalheContent').innerHTML = html;
+  navigate(null, 'cliente-detalhe');
+}
+
+// ============================================================
+// SERVIÇOS
+// ============================================================
+function populateServicoClientes(preselect) {
+  const sel = document.getElementById('sCliente');
+  sel.innerHTML = '<option value="">Selecionar cliente...</option>';
+  getClientes().sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c.id; o.textContent = c.nome;
+    if (preselect && c.id===preselect) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+function populateServicoTratamentos() {
+  const sel = document.getElementById('sTratamento');
+  sel.innerHTML = '<option value="">Selecionar...</option>';
+  getTratamentos().forEach(t=>{
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.emoji+' '+t.nome;
+    sel.appendChild(o);
+  });
+  // histSelect
+  const hs = document.getElementById('histTrat');
+  if (hs) {
+    hs.innerHTML = '<option value="">Todos os tratamentos</option>';
+    getTratamentos().forEach(t=>{
+      const o = document.createElement('option'); o.value=t.id; o.textContent=t.nome; hs.appendChild(o);
+    });
+  }
+}
+function onClienteServicoChange() {}
+function openServicoModal(clienteId, servicoId) {
+  populateServicoClientes(clienteId||'');
+  populateServicoTratamentos();
+  if (servicoId) {
+    const s = getServicos().find(x=>x.id===servicoId);
+    document.getElementById('servicoId').value = s.id;
+    document.getElementById('sCliente').value = s.clienteId;
+    document.getElementById('sData').value = s.data;
+    document.getElementById('sHora').value = s.hora||'';
+    document.getElementById('sTratamento').value = s.tratamentoId;
+    document.getElementById('sZona').value = s.zona||'';
+    document.getElementById('sObs').value = s.obs||'';
+    document.getElementById('sPreco').value = s.preco||'';
+    document.getElementById('sEstado').value = s.estado||'marcado';
+    document.getElementById('sOperadora').value = s.operadora||'';
+    const trat = getTratamentos().find(t=>t.id===s.tratamentoId);
+    document.getElementById('sZonaGroup').style.display = (trat&&trat.temZonas)?'':'none';
+  } else {
+    document.getElementById('servicoId').value = '';
+    document.getElementById('sData').value = new Date().toISOString().slice(0,10);
+    document.getElementById('sHora').value = '10:00';
+    document.getElementById('sTratamento').value = '';
+    document.getElementById('sZona').value = '';
+    document.getElementById('sObs').value = '';
+    document.getElementById('sPreco').value = '';
+    document.getElementById('sEstado').value = 'marcado';
+    document.getElementById('sOperadora').value = '';
+    document.getElementById('sZonaGroup').style.display = 'none';
+  }
+  document.getElementById('sTratamento').onchange = function() {
+    const trat = getTratamentos().find(t=>t.id===this.value);
+    document.getElementById('sZonaGroup').style.display = (trat&&trat.temZonas)?'':'none';
+  };
+  openModal('modalServico');
+}
+function editarServico(id) { openServicoModal(null, id); }
+async function salvarServico() {
+  const clienteId = document.getElementById('sCliente').value;
+  const data = document.getElementById('sData').value;
+  const tratamentoId = document.getElementById('sTratamento').value;
+  if (!clienteId||!data||!tratamentoId) { toast('Preenche os campos obrigatórios'); return; }
+  const id = document.getElementById('servicoId').value;
+  const obj = {
+    cliente_id: clienteId,
+    tratamento_id: tratamentoId,
+    data,
+    hora: document.getElementById('sHora').value||null,
+    zona: document.getElementById('sZona').value||null,
+    obs: document.getElementById('sObs').value.trim()||null,
+    preco: document.getElementById('sPreco').value||null,
+    estado: document.getElementById('sEstado').value,
+    operadora: document.getElementById('sOperadora').value.trim()||null,
+  };
+  showLoading();
+  try {
+    if (id) {
+      const res = await supa('servicos?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const i = _servicos.findIndex(x=>x.id===id);
+      if (i>=0) _servicos[i] = mapServico(res[0]);
+    } else {
+      const res = await supa('servicos', {method:'POST', body:obj, prefer:'return=representation'});
+      _servicos.unshift(mapServico(res[0]));
+    }
+    closeModal('modalServico');
+    toast(id?'Serviço atualizado!':'Serviço registado!','success');
+    if (currentSection==='cliente-detalhe' && currentClienteId) abrirCliente(currentClienteId);
+    else if (currentSection==='agenda') renderAgenda();
+    else if (currentSection==='historico') renderHistorico();
+    else if (currentSection==='dashboard') renderDashboard();
+  } catch(e) { toast('Erro: '+e.message); }
+  hideLoading();
+}
+
+// ============================================================
+// TRATAMENTOS
+// ============================================================
+function openTratamentoModal(id) {
+  document.getElementById('tratId').value = id||'';
+  if (id) {
+    const t = getTratamentos().find(x=>x.id===id);
+    document.getElementById('tratNome').value = t.nome||'';
+    document.getElementById('tratEmoji').value = t.emoji||'';
+    document.getElementById('tratTemZonas').value = t.temZonas?'true':'false';
+  } else {
+    document.getElementById('tratNome').value = '';
+    document.getElementById('tratEmoji').value = '';
+    document.getElementById('tratTemZonas').value = 'false';
+  }
+  openModal('modalTratamento');
+}
+async function salvarTratamento() {
+  const nome = document.getElementById('tratNome').value.trim();
+  if (!nome) { toast('Nome obrigatório'); return; }
+  const id = document.getElementById('tratId').value;
+  const obj = {
+    nome,
+    emoji: document.getElementById('tratEmoji').value||'⭐',
+    tem_zonas: document.getElementById('tratTemZonas').value==='true',
+  };
+  showLoading();
+  try {
+    if (id) {
+      const res = await supa('tratamentos?id=eq.'+id, {method:'PATCH', body:obj, prefer:'return=representation'});
+      const i = _tratamentos.findIndex(x=>x.id===id);
+      if (i>=0) _tratamentos[i] = mapTratamento(res[0]);
+    } else {
+      const res = await supa('tratamentos', {method:'POST', body:obj, prefer:'return=representation'});
+      _tratamentos.push(mapTratamento(res[0]));
+    }
+    closeModal('modalTratamento');
+    toast('Tratamento guardado!','success');
+    renderTratamentos();
+  } catch(e) { toast('Erro: '+e.message); }
+  hideLoading();
+}
+function renderTratamentos() {
+  const grid = document.getElementById('tratamentosGrid');
+  if (!grid) return;
+  const tratamentos = getTratamentos();
+  grid.innerHTML = tratamentos.map(t=>`
+    <div class="treat-card" onclick="openTratamentoModal('${t.id}')">
+      <div class="treat-icon">${t.emoji}</div>
+      <div class="treat-name">${t.nome}</div>
+      ${t.temZonas?`<div style="font-size:11px;color:var(--text-muted);margin-top:4px">com zonas</div>`:''}
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// AGENDA / CALENDÁRIO
+// ============================================================
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function renderAgenda() {
+  const hoje = new Date();
+  const label = new Date(calYear, calMonth).toLocaleDateString('pt-PT',{month:'long',year:'numeric'});
+  document.getElementById('calMonthLabel').textContent = label.charAt(0).toUpperCase()+label.slice(1);
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const firstDay = new Date(calYear,calMonth,1).getDay();
+  const daysInMonth = new Date(calYear,calMonth+1,0).getDate();
+  const servicos = getServicos();
+  const clientes = getClientes();
+  const tratamentos = getTratamentos();
+  let html = dias.map(d=>`<div class="day-header">${d}</div>`).join('');
+  for (let i=0;i<firstDay;i++) html += `<div></div>`;
+  for (let d=1;d<=daysInMonth;d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayServicos = servicos.filter(s=>s.data===dateStr&&s.estado!=='cancelado');
+    const isHoje = hoje.getFullYear()===calYear&&hoje.getMonth()===calMonth&&hoje.getDate()===d;
+    html += `<div class="day-cell${isHoje?' today':''}" onclick="selectDay('${dateStr}')">
+      <div class="day-num">${d}</div>
+      ${dayServicos.slice(0,2).map(s=>{
+        const c = clientes.find(x=>x.id===s.clienteId);
+        const cls = s.estado==='concluido'?'green':s.estado==='marcado'?'':'gold';
+        return `<div class="appt-pill ${cls}">${s.hora?s.hora+' ':''}${c?c.nome.split(' ')[0]:'?'}</div>`;
+      }).join('')}
+      ${dayServicos.length>2?`<div style="font-size:10px;color:var(--text-muted)">+${dayServicos.length-2} mais</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calDayCells').innerHTML = '';
+  document.getElementById('calDays').innerHTML = html;
+  renderAgendaList();
+}
+function selectDay(dateStr) {
+  document.getElementById('agendaListTitle').textContent = 'Marcações de '+formatDate(dateStr);
+  renderAgendaList(dateStr);
+}
+function renderAgendaList(filterDate) {
+  const servicos = getServicos().filter(s=>s.data>=(calYear+'-'+String(calMonth+1).padStart(2,'0')+'-01')&&s.data<=(calYear+'-'+String(calMonth+1).padStart(2,'0')+'-31'));
+  const filtered = filterDate ? servicos.filter(s=>s.data===filterDate) : servicos;
+  const clientes = getClientes();
+  const tratamentos = getTratamentos();
+  const list = document.getElementById('agendaList');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty"><p>${filterDate?'Sem marcações neste dia.':'Sem marcações neste mês.'}</p></div>`;
+    return;
+  }
+  filtered.sort((a,b)=>a.data.localeCompare(b.data)||(a.hora||'').localeCompare(b.hora||''));
+  list.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr>
+    <th style="text-align:left;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Data</th>
+    <th style="text-align:left;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Hora</th>
+    <th style="text-align:left;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Cliente</th>
+    <th style="text-align:left;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Tratamento</th>
+    <th style="text-align:left;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Estado</th>
+    <th></th>
+  </tr></thead><tbody>`+
+  filtered.map(s=>{
+    const c = clientes.find(x=>x.id===s.clienteId);
+    const t = tratamentos.find(x=>x.id===s.tratamentoId)||{nome:'?',emoji:'⭐'};
+    const badge = s.estado==='concluido'?'badge-green':s.estado==='cancelado'?'badge-gray':'badge-gold';
+    return `<tr>
+      <td style="padding:12px;border-bottom:1px solid var(--border)">${formatDate(s.data)}</td>
+      <td style="padding:12px;border-bottom:1px solid var(--border)">${s.hora||'—'}</td>
+      <td style="padding:12px;border-bottom:1px solid var(--border);font-weight:500;cursor:pointer;color:var(--rose-dark)" onclick="abrirCliente('${s.clienteId}')">${c?c.nome:'?'}</td>
+      <td style="padding:12px;border-bottom:1px solid var(--border)">${t.emoji} ${t.nome}${s.zona?' ('+s.zona+')':''}</td>
+      <td style="padding:12px;border-bottom:1px solid var(--border)"><span class="badge ${badge}">${s.estado}</span></td>
+      <td style="padding:12px;border-bottom:1px solid var(--border)"><button class="btn btn-ghost btn-sm" onclick="editarServico('${s.id}')">✎</button></td>
+    </tr>`;
+  }).join('')+'</tbody></table>';
+}
+function changeMonth(d) { calMonth+=d; if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;} renderAgenda(); }
+function goToday() { calYear=new Date().getFullYear(); calMonth=new Date().getMonth(); renderAgenda(); }
+
+// ============================================================
+// HISTÓRICO
+// ============================================================
+function renderHistorico() {
+  const q = (document.getElementById('histSearch')||{value:''}).value.toLowerCase();
+  const filtTrat = (document.getElementById('histTrat')||{value:''}).value;
+  const clientes = getClientes();
+  const tratamentos = getTratamentos();
+  let servicos = getServicos().sort((a,b)=>b.data.localeCompare(a.data));
+  if (filtTrat) servicos = servicos.filter(s=>s.tratamentoId===filtTrat);
+  if (q) servicos = servicos.filter(s=>{
+    const c = clientes.find(x=>x.id===s.clienteId);
+    return (c&&c.nome.toLowerCase().includes(q))||(s.obs||'').toLowerCase().includes(q)||(s.zona||'').toLowerCase().includes(q);
+  });
+  populateServicoTratamentos();
+  const body = document.getElementById('historicoBody');
+  if (!body) return;
+  if (!servicos.length) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty"><p>Sem serviços encontrados.</p></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = servicos.map(s=>{
+    const c = clientes.find(x=>x.id===s.clienteId);
+    const t = tratamentos.find(x=>x.id===s.tratamentoId)||{nome:'?',emoji:'⭐'};
+    const badge = s.estado==='concluido'?'badge-green':s.estado==='cancelado'?'badge-gray':'badge-gold';
+    return `<tr>
+      <td>${formatDate(s.data)}${s.hora?' '+s.hora:''}</td>
+      <td style="cursor:pointer;color:var(--rose-dark);font-weight:500" onclick="abrirCliente('${s.clienteId}')">${c?c.nome:'?'}</td>
+      <td><span class="badge ${badge}">${t.emoji} ${t.nome}${s.zona?' · '+s.zona:''}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.obs||'—'}</td>
+      <td>${s.operadora||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const clientes = getClientes();
+  const servicos = getServicos();
+  const tratamentos = getTratamentos();
+  const hoje = new Date().toISOString().slice(0,10);
+  const mesAtual = hoje.slice(0,7);
+  document.getElementById('stat-clientes').textContent = clientes.length;
+  document.getElementById('stat-hoje').textContent = servicos.filter(s=>s.data===hoje&&s.estado!=='cancelado').length;
+  document.getElementById('stat-servicos').textContent = servicos.filter(s=>s.data.startsWith(mesAtual)&&s.estado==='concluido').length;
+  document.getElementById('stat-total').textContent = servicos.filter(s=>s.estado==='concluido').length;
+
+  // próximas marcações
+  const proximas = servicos.filter(s=>s.data>=hoje&&s.estado==='marcado').sort((a,b)=>a.data.localeCompare(b.data)||(a.hora||'').localeCompare(b.hora||'')).slice(0,5);
+  const dp = document.getElementById('dash-proximas');
+  if (!proximas.length) { dp.innerHTML = `<div class="empty"><p>Sem marcações futuras.</p></div>`; }
+  else dp.innerHTML = proximas.map(s=>{
+    const c = clientes.find(x=>x.id===s.clienteId);
+    const t = tratamentos.find(x=>x.id===s.tratamentoId)||{nome:'?',emoji:'⭐'};
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="avatar" style="width:32px;height:32px;font-size:11px">${c?c.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase():'?'}</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:500">${c?c.nome:'?'}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${t.emoji} ${t.nome} · ${formatDate(s.data)}${s.hora?' '+s.hora:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // últimos serviços
+  const ultimos = servicos.filter(s=>s.estado==='concluido').sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  const du = document.getElementById('dash-ultimos');
+  if (!ultimos.length) { du.innerHTML = `<div class="empty"><p>Sem serviços concluídos.</p></div>`; }
+  else du.innerHTML = ultimos.map(s=>{
+    const c = clientes.find(x=>x.id===s.clienteId);
+    const t = tratamentos.find(x=>x.id===s.tratamentoId)||{nome:'?',emoji:'⭐'};
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="avatar" style="width:32px;height:32px;font-size:11px">${c?c.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase():'?'}</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:500">${c?c.nome:'?'}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${t.emoji} ${t.nome} · ${formatDate(s.data)}</div>
+      </div>
+      ${s.preco?`<span style="font-size:12px;font-weight:600;color:var(--success)">${parseFloat(s.preco).toFixed(2)}€</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function formatDate(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  await loadDB();
+  renderDashboard();
+  renderClientesList();
+  renderAgenda();
+  renderTratamentos();
+  renderHistorico();
+  populateServicoTratamentos();
+}
+init();
+</script>
+</body>
+</html>
